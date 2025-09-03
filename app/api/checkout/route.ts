@@ -31,9 +31,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       allow_promotion_codes: true,
     });
 
-    // 303 redirect to Stripe
     res.setHeader("Location", session.url!);
-    return res.status(303).end();
+    return res.status(303).end(); // redirect to Stripe
   } catch (e: any) {
     return res.status(500).json({ error: e?.message ?? "Internal error" });
   }
