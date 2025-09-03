@@ -1,0 +1,135 @@
+/* Tailwind v4 */
+@import "tailwindcss";
+
+/* ---------- Echo global look ---------- */
+
+:root{
+  --bg:#0b0b0c;
+  --surface:#111215;
+  --surface-2:#17181c;
+  --border:rgba(255,255,255,0.08);
+  --text:#fff;
+  --muted:rgba(255,255,255,0.6);
+  --accent-1:#7C3AED; /* purple */
+  --accent-2:#06B6D4; /* cyan */
+  --ring:rgba(34,211,238,.5);
+}
+
+html,body{
+  background: var(--bg);
+  color: var(--text);
+  min-height:100%;
+  margin:0;
+  font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Inter, Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.container{ max-width:72rem; margin:0 auto; padding:0 1.25rem; }
+
+/* subtle grid background */
+.bg-grid{
+  background-image:
+    linear-gradient(rgba(255,255,255,0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,0.05) 1px, transparent 1px);
+  background-size:24px 24px;
+  position:fixed; inset:0; z-index:-1;
+}
+
+/* ---------- Cards ---------- */
+.card{
+  background: rgba(255,255,255,0.02);
+  border:1px solid var(--border);
+  border-radius:16px;
+  padding:1.25rem;
+  box-shadow:
+    0 0 0 1px rgba(255,255,255,0.03) inset,
+    0 8px 30px rgba(0,0,0,0.6);
+  backdrop-filter: saturate(120%) blur(2px);
+}
+
+/* ---------- Buttons ---------- */
+.btn{
+  display:inline-flex; align-items:center; justify-content:center;
+  gap:.5rem;
+  padding:.6rem 1rem;
+  border-radius:12px;
+  border:1px solid transparent;
+  background-image: linear-gradient(135deg,var(--accent-1),var(--accent-2));
+  color:#fff; font-weight:600;
+  transition: transform .08s ease, filter .2s ease, opacity .2s ease;
+}
+.btn:hover{ filter: brightness(1.05); }
+.btn:active{ transform: translateY(1px); }
+.btn[disabled]{ opacity:.6; cursor:not-allowed; }
+
+/* Plain button (e.g. red sign-out) */
+.btn-plain{
+  display:inline-flex; align-items:center; justify-content:center;
+  padding:.5rem .8rem; border-radius:10px;
+  border:1px solid var(--border); background: var(--surface-2); color:#fff;
+}
+.btn-plain:hover{ background:#1d1f25; }
+
+/* ---------- Inputs ---------- */
+.input, .select, .textarea{
+  width:100%;
+  padding:.65rem .8rem;
+  border-radius:12px;
+  border:1px solid var(--border);
+  background: var(--surface);
+  color:#fff;
+  outline:none;
+  transition:border-color .15s ease, box-shadow .15s ease, background .2s ease;
+}
+.input::placeholder, .textarea::placeholder{ color: var(--muted); }
+.textarea{ min-height:120px; resize:vertical; }
+
+.input:focus, .select:focus, .textarea:focus{
+  border-color: var(--accent-2);
+  box-shadow: 0 0 0 6px var(--ring);
+}
+
+/* ---------- Chips / tags ---------- */
+.chips{ display:flex; flex-wrap:wrap; gap:.5rem; }
+.chip{
+  padding:.4rem .7rem; border-radius:999px;
+  border:1px solid var(--border);
+  background: var(--surface);
+  color:#d6d6d7; font-size:.85rem;
+  transition: background .15s ease, border-color .15s ease;
+}
+.chip:hover{ background:#1a1b20; border-color: rgba(255,255,255,.12); }
+
+.tag{ color:var(--muted); font-size:.9rem; }
+
+/* ---------- Lists & misc ---------- */
+.list{ margin:0; padding-left:1rem; display:grid; gap:.5rem; }
+.list li{ color:#e6e7ea; }
+
+.image-wrap img{ border-radius:14px; box-shadow: 0 10px 40px rgba(0,0,0,.55); }
+
+/* ---------- Links ---------- */
+a{ color:#8be9ff; text-decoration:none; }
+a:hover{ text-decoration:underline; }
+
+/* ---------- Focus ring for keyboard nav ---------- */
+:focus-visible{
+  outline:2px solid var(--accent-2);
+  outline-offset:2px;
+  border-radius:10px;
+}
+
+/* ---------- Nice scrollbar (desktop) ---------- */
+@media (pointer:fine){
+  *{ scrollbar-width: thin; scrollbar-color: rgba(255,255,255,.2) transparent; }
+  *::-webkit-scrollbar{ height:10px; width:10px; }
+  *::-webkit-scrollbar-track{ background: transparent; }
+  *::-webkit-scrollbar-thumb{
+    background: rgba(255,255,255,.16);
+    border-radius:999px;
+    border:2px solid transparent;
+    background-clip: padding-box;
+  }
+  *::-webkit-scrollbar-thumb:hover{ background: rgba(255,255,255,.26); }
+}
