@@ -1,110 +1,107 @@
+// app/pricing/page.tsx
 "use client";
 
-export default function PricingPage() {
-  // 🔢 Change this number any time to update the “spots left” banner.
-  // Later we can fetch this from your DB.
-  const totalSpots = 1000;
-  const spotsLeft = 742; // <-- update manually for now
-  const claimed = totalSpots - spotsLeft;
-  const claimedPct = Math.max(0, Math.min(100, Math.round((claimed / totalSpots) * 100)));
+import { useEffect, useState } from "react";
+import Link from "next/link";
+
+function Notice() {
+  const [msg, setMsg] = useState<string | null>(null);
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get("success") === "1") setMsg("✅ Payment successful. Welcome aboard!");
+    if (params.get("canceled") === "1") setMsg("❕ Checkout canceled. You can try again anytime.");
+  }, []);
+
+  if (!msg) return null;
+  return (
+    <div className="mx-auto max-w-4xl mb-6 rounded-lg border border-white/10 bg-emerald-500/10 p-3 text-sm">
+      {msg}
+    </div>
+  );
+}
+
+function BuyButton({ plan }: { plan: "early" | "standard" }) {
+  const [loading, setLoading] = useState(false);
+  const label = plan === "early" ? "Subscribe £19/mo" : "Start 7-day free trial (£24/mo)";
+
+  const onClick = async () => {
+    try {
+      setLoading(true);
+      const res = await fetch("/api/checkout", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ plan }),
+      });
+      const data = (await res.json()) as { url?: string; error?: string };
+      if (data.url) {
+        window.location.href = data.url;
+      } else {
+        alert(data.error ?? "Something went wrong starting checkout.");
+      }
+    } catch {
+      alert("Network error. Please try again.");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
-    <div className="container py-12">
-      {/* Hero */}
-      <div className="text-center mb-10">
-        <h1 className="text-4xl md:text-5xl font-bold tracking-tight">Simple pricing</h1>
-        <p className="text-gray-400 mt-3">
-          Lock in <span className="text-white font-semibold">£19/month</span> for the first 1,000 users — or try free for 7 days (card required),
-          then <span className="text-white font-semibold">£24/month</span>.
-        </p>
-      </div>
+    <button
+      onClick={onClick}
+      disabled={loading}
+      className="w-full rounded-lg bg-blue-600 px-4 py-2 font-medium text-white hover:bg-blue-500 disabled:opacity-60"
+    >
+      {loading ? "Redirecting…" : label}
+    </button>
+  );
+}
 
-      {/* Early access banner + progress */}
-      <div className="max-w-2xl mx-auto mb-10 p-4 rounded-2xl border border-cyan-500/50 bg-gradient-to-b from-purple-900/30 to-cyan-900/10">
-        <div className="flex items-center justify-between">
-          <div className="text-sm text-gray-200">
-            <div className="font-semibold text-white">Early Access: £19/month</div>
-            <div className="text-gray-300">First 1,000 subscribers</div>
-          </div>
-          <div className="text-right">
-            <div className="text-sm text-gray-300">Spots left</div>
-            <div className="text-xl font-bold text-white">{spotsLeft}</div>
-          </div>
-        </div>
-        <div className="mt-3 h-2 rounded-full bg-gray-800 overflow-hidden">
-          <div
-            className="h-full bg-gradient-to-r from-purple-500 to-cyan-400"
-            style={{ width: `${claimedPct}%` }}
-            aria-label={`Claimed ${claimed} of ${totalSpots}`}
-          />
-        </div>
-        <div className="mt-2 text-xs text-gray-400">
-          {claimed.toLocaleString()} claimed · {spotsLeft.toLocaleString()} left
-        </div>
-      </div>
+export default function PricingPage() {
+  return (
+    <div className="mx-auto max-w-4xl p-6">
+      <h1 className="text-3xl font-semibold">Pricing</h1>
+      <p className="mt-2 text-zinc-300">
+        Founding members get a locked £19/mo plan. Standard includes a 7-day free trial.
+      </p>
 
-      {/* Two cards */}
-      <div className="grid md:grid-cols-2 gap-8">
-        {/* Early Access £19 */}
-        <div className="p-6 rounded-2xl border border-cyan-400/60 bg-gradient-to-b from-purple-900/40 to-cyan-900/20 shadow-xl">
-          <div className="text-xs inline-block px-2 py-1 rounded-full border border-cyan-400/50 text-cyan-200 mb-3">
-            Limited — {spotsLeft} left
-          </div>
-          <h2 className="text-2xl font-semibold mb-1">Early Access</h2>
-          <p className="text-4xl font-bold mb-4">£19<span className="text-lg text-gray-300">/month</span></p>
-          <ul className="space-y-2 text-gray-200 mb-6">
-            <li>✓ Unlimited posts</li>
-            <li>✓ 100 images / month</li>
-            <li>✓ Save history & export CSV</li>
-            <li>✓ Priority generation</li>
+      <Notice />
+
+      <div className="mt-8 grid gap-6 md:grid-cols-2">
+        {/* Early Access */}
+        <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-6">
+          <h3 className="text-xl font-semibold">Early Access</h3>
+          <p className="mt-1 text-zinc-300">£19 / month — limited to first 1,000 users</p>
+          <ul className="mt-4 list-disc space-y-1 pl-5 text-sm text-zinc-300">
+            <li>All core features</li>
+            <li>Locked pricing for life</li>
+            <li>Priority support</li>
           </ul>
-          <a
-            href="#"
-            className="block w-full text-center py-2 rounded font-medium bg-gradient-to-r from-purple-600 to-cyan-500 text-white hover:opacity-90 transition"
-          >
-            Lock in £19
-          </a>
-          <p className="text-xs text-gray-400 mt-2">
-            Price locked for life while active. Limited to the first 1,000 subscribers.
-          </p>
+          <div className="mt-6">
+            <BuyButton plan="early" />
+          </div>
         </div>
 
-        {/* Standard £24 with 7-day trial */}
-        <div className="p-6 rounded-2xl border border-gray-700 bg-gray-900">
-          <div className="text-xs inline-block px-2 py-1 rounded-full border border-gray-700 text-gray-300 mb-3">
-            7-day trial · card required
-          </div>
-          <h2 className="text-2xl font-semibold mb-1">Standard</h2>
-          <p className="text-4xl font-bold mb-4">£24<span className="text-lg text-gray-300">/month</span></p>
-          <ul className="space-y-2 text-gray-200 mb-6">
-            <li>✓ Unlimited posts</li>
-            <li>✓ 100 images / month</li>
-            <li>✓ Save history & export CSV</li>
-            <li>✓ Priority generation</li>
+        {/* Standard */}
+        <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-6">
+          <h3 className="text-xl font-semibold">Standard</h3>
+          <p className="mt-1 text-zinc-300">£24 / month — 7-day free trial</p>
+          <ul className="mt-4 list-disc space-y-1 pl-5 text-sm text-zinc-300">
+            <li>All core features</li>
+            <li>Cancel anytime</li>
+            <li>AI improvements included</li>
           </ul>
-          <a
-            href="#"
-            className="block w-full text-center py-2 rounded font-medium bg-gray-800 text-white hover:bg-gray-700 transition"
-          >
-            Start 7-day trial
-          </a>
-          <p className="text-xs text-gray-400 mt-2">
-            Auto-charges £24 after 7 days unless cancelled during trial.
-          </p>
+          <div className="mt-6">
+            <BuyButton plan="standard" />
+          </div>
         </div>
       </div>
 
-      {/* FAQ snippet */}
-      <div className="max-w-3xl mx-auto mt-12 text-sm text-gray-300">
-        <h3 className="text-lg font-semibold mb-3">FAQs</h3>
-        <details className="mb-2">
-          <summary className="cursor-pointer text-gray-200">Can I cancel during the trial?</summary>
-          <p className="mt-2 text-gray-400">Yes — cancel any time in the first 7 days to avoid being charged.</p>
-        </details>
-        <details className="mb-2">
-          <summary className="cursor-pointer text-gray-200">What happens after early access fills?</summary>
-          <p className="mt-2 text-gray-400">New signups move to the Standard plan at £24/month. Existing early access users keep £19/month while active.</p>
-        </details>
+      <div className="mt-8 text-sm text-zinc-400">
+        Questions?{" "}
+        <Link className="underline hover:text-zinc-200" href="mailto:tayloremwc@gmail.com">
+          Contact support
+        </Link>
       </div>
     </div>
   );
