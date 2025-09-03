@@ -6,54 +6,16 @@ import Link from "next/link";
 
 function Notice() {
   const [msg, setMsg] = useState<string | null>(null);
-
   useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    if (params.get("success") === "1") setMsg("✅ Payment successful. Welcome aboard!");
-    if (params.get("canceled") === "1") setMsg("❕ Checkout canceled. You can try again anytime.");
+    const p = new URLSearchParams(window.location.search);
+    if (p.get("success") === "1") setMsg("✅ Payment successful. Welcome aboard!");
+    if (p.get("canceled") === "1") setMsg("❕ Checkout canceled. You can try again anytime.");
   }, []);
-
   if (!msg) return null;
   return (
     <div className="mx-auto max-w-4xl mb-6 rounded-lg border border-white/10 bg-emerald-500/10 p-3 text-sm">
       {msg}
     </div>
-  );
-}
-
-function BuyButton({ plan }: { plan: "early" | "standard" }) {
-  const [loading, setLoading] = useState(false);
-  const label = plan === "early" ? "Subscribe £19/mo" : "Start 7-day free trial (£24/mo)";
-
-  const onClick = async () => {
-    try {
-      setLoading(true);
-      const res = await fetch("/api/checkout", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ plan }),
-      });
-      const data = (await res.json()) as { url?: string; error?: string };
-      if (data.url) {
-        window.location.href = data.url;
-      } else {
-        alert(data.error ?? "Something went wrong starting checkout.");
-      }
-    } catch {
-      alert("Network error. Please try again.");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  return (
-    <button
-      onClick={onClick}
-      disabled={loading}
-      className="w-full rounded-lg bg-blue-600 px-4 py-2 font-medium text-white hover:bg-blue-500 disabled:opacity-60"
-    >
-      {loading ? "Redirecting…" : label}
-    </button>
   );
 }
 
@@ -78,7 +40,12 @@ export default function PricingPage() {
             <li>Priority support</li>
           </ul>
           <div className="mt-6">
-            <BuyButton plan="early" />
+            <Link
+              href="/api/checkout?plan=early"
+              className="inline-flex w-full justify-center rounded-lg bg-blue-600 px-4 py-2 font-medium text-white hover:bg-blue-500"
+            >
+              Subscribe £19/mo
+            </Link>
           </div>
         </div>
 
@@ -92,7 +59,12 @@ export default function PricingPage() {
             <li>AI improvements included</li>
           </ul>
           <div className="mt-6">
-            <BuyButton plan="standard" />
+            <Link
+              href="/api/checkout?plan=standard"
+              className="inline-flex w-full justify-center rounded-lg bg-blue-600 px-4 py-2 font-medium text-white hover:bg-blue-500"
+            >
+              Start 7-day free trial
+            </Link>
           </div>
         </div>
       </div>
